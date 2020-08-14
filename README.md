@@ -1,0 +1,1 @@
+# hapijs-typescript
