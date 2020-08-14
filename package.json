@@ -1,0 +1,21 @@
+{
+  "name": "hapi-typescript-microservices",
+  "version": "1.0.0",
+  "description": "hapi with typescript architecture",
+  "main": "index.js",
+  "author": "Lucas Nascimento",
+  "license": "MIT",
+  "dependencies": {
+    "@hapi/hapi": "^20.0.0"
+  },
+  "scripts": {
+    "start": "nodemon -e ts  --exec \"yarn run compile\"",
+    "compile": "tsc && node ./dist/index.js"
+  },
+  "devDependencies": {
+    "@types/hapi__hapi": "^19.0.4",
+    "@types/node": "^14.0.27",
+    "nodemon": "^2.0.4",
+    "typescript": "^3.9.7"
+  }
+}
