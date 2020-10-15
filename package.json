@@ -6,7 +6,7 @@
   "author": "Lucas Nascimento",
   "license": "MIT",
   "dependencies": {
-    "@hapi/hapi": "^20.0.0"
+    "@hapi/hapi": "^20.0.1"
   },
   "scripts": {
     "start": "nodemon -e ts  --exec \"yarn run compile\"",
