@@ -1,21 +1,24 @@
 {
-  "name": "hapi-typescript-microservices",
+  "name": "node-ai-agent",
   "version": "1.0.0",
   "description": "hapi with typescript architecture",
   "main": "index.js",
   "author": "Lucas Nascimento",
   "license": "MIT",
-  "dependencies": {
-    "@hapi/hapi": "^20.0.0"
-  },
   "scripts": {
-    "start": "nodemon -e ts  --exec \"yarn run compile\"",
-    "compile": "tsc && node ./dist/index.js"
+    "start": "node dist/index.js",
+    "build": "tsc"
+   
+,   "test": "jest --coverage --coverageReporters=html"
+  },
+  "dependencies": {
+    "hono": "latest",
+    "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@types/hapi__hapi": "^19.0.4",
     "@types/node": "^14.0.27",
-    "nodemon": "^2.0.4",
-    "typescript": "^3.9.7"
+    "typescript": "latest",
+    "@types/jest": "^29.5.12",
+    "ts-jest": "^29.2.3"
   }
 }
