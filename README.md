@@ -45,11 +45,11 @@ This project follows a structured organization to separate concerns and improve 
 To run the project locally, follow these steps:
 
 1.  **Install dependencies:**
-    <CODE_BLOCK> npm install </CODE_BLOCK> or if you use yarn: <CODE_BLOCK> yarn install </CODE_BLOCK>
+    ```
+      npm install 
+    ```
 2.  **Start the development server:**
-    <CODE_BLOCK> npm run start </CODE_BLOCK> or with yarn: <CODE_BLOCK> yarn start </CODE_BLOCK>
-
-
-
-1.  **Install dependencies:**
+    ```
+      npm run start
+    ```
     
