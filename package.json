@@ -6,7 +6,8 @@
   "author": "Lucas Nascimento",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "NODE_ENV=development ts-node-dev src/index.ts",
+    "start:prod": "NODE_ENV=production node build/index.js",
     "build": "tsc",
     "test": "jest --coverage --coverageReporters=html"
   },
@@ -14,6 +15,8 @@
     "@hono/node-server": "^1.12.0",
     "hono": "^4.4.12",
     "ulid": "^2.3.0"
+    "pino": "^9.3.0",
+    "pino-pretty": "^11.2.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -21,6 +24,7 @@
     "@types/node": "^20.14.13",
     "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "~5.5.4"
   },
   "engines": {

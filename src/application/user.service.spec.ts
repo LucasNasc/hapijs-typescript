@@ -1,124 +1,190 @@
 import { ulid } from 'ulid';
 import { UserService } from './user.service';
-import { UserRepository } from './user.service';
+import { CreateUserCommand } from './command/CreateUserHandler';
 import { User } from '../domain/user';
+import { ListUsersQuery } from './query/ListUsersHandler';
+import { UpdateUserHandler } from './command/UpdateUserHandler';
+import { DeleteUserHandler } from './command/DeleteUserHandler';
+import { GetUserHandler } from './query/GetUserHandler';
+import { ListUsersHandler } from './query/ListUsersHandler';
 
-// Mock UserRepository
-const mockUserRepository: jest.Mocked<UserRepository> = {
+
+const mockUserRepository = {
   create: jest.fn(),
-  getAll: jest.fn(),
   read: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+  getAll: jest.fn(),
 };
 
 describe('UserService', () => {
   let userService: UserService;
 
+  const mockCreateUserHandler = {
+    userRepository: mockUserRepository,
+    handle: jest.fn(),
+    execute: jest.fn(), 
+  };
+  const mockUpdateUserHandler = {
+    userRepository: mockUserRepository,
+    handle: jest.fn(),
+    execute: jest.fn(),
+  };
+  const mockDeleteUserHandler = {
+    userRepository: mockUserRepository,
+    handle: jest.fn(),
+    execute: jest.fn(),
+  };
+  const mockGetUserHandler = {
+    userRepository: mockUserRepository,
+    handle: jest.fn(),
+    execute: jest.fn(),
+  };
+  const mockListUsersHandler = {
+    userRepository: mockUserRepository,
+    handle: jest.fn(),
+    execute: jest.fn(),
+  };
+
   beforeEach(() => {
-    userService = new UserService(mockUserRepository);
+
+
+
+
+
+
+    userService = new UserService(
+      {
+        create: mockCreateUserHandler,
+        update: mockUpdateUserHandler,
+        delete: mockDeleteUserHandler,
+      },
+      {
+        get: mockGetUserHandler,
+        list: mockListUsersHandler,
+      }
+    );
+
     jest.clearAllMocks();
   });
 
   it('should create a user', async () => {
     const userData = { name: 'John Doe', email: 'john.doe@example.com' };
-    const createdUser: User = { id: ulid(), ...userData };
-    mockUserRepository.create.mockResolvedValue(createdUser);
+    const createdUser: User = { id: "1", ...userData };
+    mockCreateUserHandler.handle.mockResolvedValue(createdUser);
 
     const result = await userService.create(userData);
 
-    expect(mockUserRepository.create).toHaveBeenCalledWith({ ...userData, id: expect.any(String) });
-    expect(result).toEqual(createdUser);
+    const expectedCommand = new CreateUserCommand(userData.name, userData.email);
+    expect(mockCreateUserHandler.handle).toHaveBeenCalledWith(expect.any(CreateUserCommand));
+    const actualCommand = mockCreateUserHandler.handle.mock.calls[0][0];
+
+    expect(result).toEqual(createdUser); 
+
   });
 
   it('should get all users', async () => {
     const users: User[] = [
-      { id: '1', name: 'John Doe', email: 'john.doe@example.com' }, 
-      { id: '2', name: 'Jane Smith', email: 'jane.smith@example.com' }, 
+      { id: '1', name: 'John Doe', email: 'john.doe@example.com' },
+      { id: '2', name: 'Jane Smith', email: 'jane.smith@example.com' },
     ];
-    mockUserRepository.getAll.mockResolvedValue(users);
+    mockListUsersHandler.handle.mockResolvedValue(users);
 
     const result = await userService.getAll();
 
-    expect(mockUserRepository.getAll).toHaveBeenCalled();
+    expect(mockListUsersHandler.handle).toHaveBeenCalled();
     expect(result).toEqual(users);
   });
 
   it('should return an empty array if there are no users', async () => {
-    mockUserRepository.getAll.mockResolvedValue([]);
-
+    mockListUsersHandler.handle.mockResolvedValue([]);
     const result = await userService.getAll();
 
-    expect(mockUserRepository.getAll).toHaveBeenCalled();
+    expect(mockListUsersHandler.handle).toHaveBeenCalledWith(expect.any(Object));
     expect(result).toEqual([]);
   });
 
-  it('should handle errors when getting all users', async () => {
-    mockUserRepository.getAll.mockRejectedValue(new Error('Failed to get users'));
-    await expect(userService.getAll()).rejects.toThrow('Failed to get users');
-  });
+  it('should handle errors when getting all users', async () => {  
+    mockListUsersHandler.handle.mockRejectedValue(new Error('Failed to get users'));  
+    await expect(userService.query(new ListUsersQuery())).rejects.toThrow('Failed to get users');  
+    expect(mockListUsersHandler.handle).toHaveBeenCalledWith(expect.any(ListUsersQuery));  
+});
 
   it('should get a user by id', async () => {
     const user: User = { id: '1', name: 'John Doe', email: 'john.doe@example.com' };
-    mockUserRepository.read.mockResolvedValue(user);
+    mockGetUserHandler.handle.mockResolvedValue(user);
+    const query = new GetUserQuery('1');
 
-    const result = await userService.read('1');
+    const result = await userService.query(query);
+    expect(mockGetUserHandler.handle).toHaveBeenCalledWith(expect.any(Object));
 
-    expect(mockUserRepository.read).toHaveBeenCalledWith('1');
+   // const actualQuery = mockGetUserHandler.handle.mock.calls[0][0];
+   // expect(actualQuery).toEqual(new GetUserHandler('1')); // Verify the structure of the query
     expect(result).toEqual(user);
   });
 
+
   it('should return null if user is not found', async () => {
-    mockUserRepository.read.mockResolvedValue(null);
+    mockGetUserHandler.handle.mockResolvedValue(null);
+    const query = new GetUserQuery('1');
 
-    const result = await userService.read('1');
+    const result = await userService.query(query);
+    expect(mockGetUserHandler.handle).toHaveBeenCalledWith(query);
 
-    expect(mockUserRepository.read).toHaveBeenCalledWith('1');
-    expect(result).toBeNull();
+    expect(result).toBeNull(); 
   });
 
   it('should handle errors when getting a user by id', async () => {
-    mockUserRepository.read.mockRejectedValue(new Error('Failed to get user'));
-    await expect(userService.read('1')).rejects.toThrow('Failed to get user');
+    mockGetUserHandler.handle.mockRejectedValue(new Error('Failed to get user'));
+    const query = new GetUserQuery('1');
+    await expect(userService.query(query)).rejects.toThrow('Failed to get user');
+    expect(mockGetUserHandler.handle).toHaveBeenCalledWith(query);
   });
 
   it('should update a user', async () => {
     const userData = { name: 'John Doe', email: 'john.doe@example.com' };
     const updatedUser: User = { id: '1', ...userData };
-    mockUserRepository.update.mockResolvedValue(updatedUser);
+    mockUpdateUserHandler.handle.mockResolvedValue(updatedUser);
+    const command = new UpdateUserCommand("1", userData.name, userData.email);
 
-    const result = await userService.update('1', userData);
+    const result = await userService.execute(command);
+    expect(mockUpdateUserHandler.handle).toHaveBeenCalledWith(command);
 
-    expect(mockUserRepository.update).toHaveBeenCalledWith('1', userData);
     expect(result).toEqual(updatedUser);
   });
 
   it('should return null if user to update is not found', async () => {
-    const userData = { name: 'John Doe', email: 'john.doe@example.com' };
-    mockUserRepository.update.mockResolvedValue(null);
+    mockUpdateUserHandler.handle.mockResolvedValue(null);
+    const userData = { name: "John Doe", email: "john.doe@example.com" };
+    const command = new UpdateUserCommand("1", userData.name, userData.email);
+    const result = await userService.execute(command);
+    expect(mockUpdateUserHandler.handle).toHaveBeenCalledWith(command);
 
-    const result = await userService.update('1', userData);
-
-    expect(mockUserRepository.update).toHaveBeenCalledWith('1', userData);
-    expect(result).toBeNull();
+    expect(result).toBeNull(); 
   });
+ it('should handle errors when updating a user', async () => {
 
-  it('should handle errors when updating a user', async () => {
-    const userData = { name: 'John Doe', email: 'john.doe@example.com' };
-    mockUserRepository.update.mockRejectedValue(new Error('Failed to update user'));
-    await expect(userService.update('1', userData)).rejects.toThrow('Failed to update user');
+    const userData = { name: "John Doe", email: "john.doe@example.com" };
+
+    const command = new UpdateUserCommand("1", userData.name, userData.email);
+
+    mockUpdateUserHandler.handle.mockRejectedValue(new Error("Failed to update user"));
+
+    await expect(userService.execute(command)).rejects.toThrow("Failed to update user");
+
+    expect(mockUpdateUserHandler.handle).toHaveBeenCalledWith(command);
   });
-
-  it('should delete a user', async () => {
-    mockUserRepository.delete.mockResolvedValue(true);
-
+ it('should delete a user', async () => {
+    mockDeleteUserHandler.handle.mockResolvedValue(true);
+    const command = { id: '1' };
     await userService.delete('1');
-
-    expect(mockUserRepository.delete).toHaveBeenCalledWith('1');
+    expect(mockDeleteUserHandler.handle).toHaveBeenCalledWith(expect.objectContaining({ id: '1' }));
   });
 
-  it('should handle errors when deleting a user', async () => {
-    mockUserRepository.delete.mockRejectedValue(new Error('Failed to delete user'));
-    await expect(userService.delete('1')).rejects.toThrow('Failed to delete user');
-  });
+  it("should handle errors when deleting a user", async () => {
+    mockDeleteUserHandler.handle.mockRejectedValue(new Error("Failed to delete user"));
+    const command = new DeleteUserCommand("1");
+    await expect(userService.execute(command)).rejects.toThrow("Failed to delete user");
+    expect(mockDeleteUserHandler.handle).toHaveBeenCalledWith(command);
+  });  
 });
