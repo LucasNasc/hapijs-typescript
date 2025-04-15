@@ -23,14 +23,12 @@ userRoutes.get('/:id', async (c) => {
   return c.json(user);
 });
 
-// Create a new user
 userRoutes.post('/', async (c) => {
   const { name, email } = await c.req.json();
   const newUser = await userService.create({ name, email });
   return c.json(newUser, 201);
 });
 
-// Update an existing user
 userRoutes.put('/:id', async (c) => {
   const id = c.req.param('id');
   const { name, email } = await c.req.json();
@@ -41,11 +39,10 @@ userRoutes.put('/:id', async (c) => {
   return c.json(updatedUser);
 });
 
-// Delete a user
 userRoutes.delete('/:id', async (c) => {
   const id = c.req.param('id');
   await userService.delete(id);
-  return c.text('User deleted', 204);
+  return c.text('User deleted');
 });
 
 export { userRoutes };

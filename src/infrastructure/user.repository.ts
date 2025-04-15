@@ -30,7 +30,7 @@ export class InMemoryUserRepository implements UserRepository {
       return false;
     }
     this.users.splice(index, 1);
-    return true; // Indicate successful deletion
+    return true;
   }
 
   async getAll(): Promise<User[]> {

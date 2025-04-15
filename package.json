@@ -6,7 +6,7 @@
   "author": "Lucas Nascimento",
   "license": "MIT",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "ts-node src/index.ts",
     "build": "tsc",
     "test": "jest --coverage --coverageReporters=html"
   },
@@ -19,7 +19,8 @@
     "@types/node": "^20.14.13",
     "typescript": "~5.5.4",
     "@types/jest": "^29.5.12",
-    "ts-jest": "^29.2.3"
+    "ts-jest": "^29.2.3",
+    "ts-node": "^10.9.2"
   },
   "engines": {
     "node": "22.11"
