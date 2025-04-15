@@ -16,11 +16,12 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.13",
-    "typescript": "~5.5.4",
+    "@biomejs/biome": "^1.9.4",
     "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.13",
     "ts-jest": "^29.2.3",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "~5.5.4"
   },
   "engines": {
     "node": "22.11"

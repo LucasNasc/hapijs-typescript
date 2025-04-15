@@ -1,5 +1,14 @@
 import { User } from '../domain/user';
-import { ulid } from 'ulid';
+import { CreateUserCommand } from './command/CreateUserHandler';
+import { UpdateUserCommand } from './command/UpdateUserHandler';
+import { DeleteUserCommand } from './command/DeleteUserHandler';
+import { GetUserQuery } from './query/GetUserHandler';
+import { GetUserHandler } from './query/GetUserHandler';
+import { ListUsersQuery } from './query/ListUsersHandler';
+import { CreateUserHandler } from './command/CreateUserHandler';
+import { UpdateUserHandler } from './command/UpdateUserHandler';
+import { DeleteUserHandler } from './command/DeleteUserHandler';
+import { ListUsersHandler } from './query/ListUsersHandler';
 
 export interface UserRepository {
   create(user: User): Promise<User>;
@@ -9,28 +18,36 @@ export interface UserRepository {
   getAll(): Promise<User[]>;
 }
 
+interface CommandHandlers {
+    create: CreateUserHandler;
+    update: UpdateUserHandler;
+    delete: DeleteUserHandler;
+}
+
+interface QueryHandlers {
+    get: GetUserHandler;
+    list: ListUsersHandler;
+}
+
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+    private commandHandlers: CommandHandlers;
+    private queryHandlers: QueryHandlers;
 
-  async create(user: Omit<User, 'id'>): Promise<User> {
-    // You might add validation or other business logic here before creating the user
-    return this.userRepository.create({ ...user, id: ulid() });
-  }
+    constructor(commandHandlers: CommandHandlers, queryHandlers: QueryHandlers) {
+        this.commandHandlers = commandHandlers;
+        this.queryHandlers = queryHandlers;
+    }
 
-  async read(id: string): Promise<User | null> {
-    return this.userRepository.read(id);
-  }
+    async execute<TCommand>(command: TCommand): Promise<any> {
+        if (command instanceof CreateUserCommand) return this.commandHandlers.create.handle(command);
+        if (command instanceof UpdateUserCommand) return this.commandHandlers.update.handle(command);
+        if (command instanceof DeleteUserCommand) return this.commandHandlers.delete.handle(command);
+        throw new Error('Unknown command');
+    }
 
-  async update(id: string, user: Partial<User>): Promise<User | null> {
-    // You might add validation or business logic here before updating the user
-    return this.userRepository.update(id, user);
-  }
-
-  async delete(id: string): Promise<boolean> {
-    return this.userRepository.delete(id);
-  }
-
-  async getAll(): Promise<User[]> {
-    return this.userRepository.getAll();
-  }
+    async query<TQuery>(query: TQuery): Promise<any> {
+        if (query instanceof GetUserQuery) return this.queryHandlers.get.handle(query);
+        if (query instanceof ListUsersQuery) return this.queryHandlers.list.handle(query);
+        throw new Error('Unknown query');
+    }
 }
