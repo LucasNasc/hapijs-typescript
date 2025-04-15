@@ -39,12 +39,12 @@ Essa separação clara entre comandos e consultas permite que cada tipo de opera
 
 1.  **Instale as dependências:**
 
-    <CODE_BLOCK>
-    npm install
-    </CODE_BLOCK>
+    ```
+      npm install 
+    ```
 
 2.  **Inicie o servidor de desenvolvimento:**
 
-    <CODE_BLOCK>
-    npm run dev
-    </CODE_BLOCK>
+    ```
+      npm run dev
+    ```
