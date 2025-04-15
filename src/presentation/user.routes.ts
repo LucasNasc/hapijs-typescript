@@ -1,68 +1,74 @@
 import { Hono } from 'hono';
+import { ListUsersQuery } from '../application/query/ListUsersHandler';
+import { GetUserQuery } from '../application/query/GetUserHandler';
+import { CreateUserCommand } from '../application/command/CreateUserHandler';
+import { UpdateUserCommand } from '../application/command/UpdateUserHandler';
+import { DeleteUserCommand } from '../application/command/DeleteUserHandler';
+import { UserService } from '../application/user.service';
 import { InMemoryUserRepository } from '../infrastructure/user.repository';
-import { ListUsersHandler, ListUsersQuery } from '../application/query/ListUsersHandler';
-import { GetUserHandler, GetUserQuery } from '../application/query/GetUserHandler';
-import { CreateUserHandler, CreateUserCommand } from '../application/command/CreateUserHandler';
-import { UpdateUserHandler, UpdateUserCommand } from '../application/command/UpdateUserHandler';
-import { DeleteUserHandler, DeleteUserCommand } from '../application/command/DeleteUserHandler';
+import { CreateUserHandler } from '../application/command/CreateUserHandler';
+import { UpdateUserHandler } from '../application/command/UpdateUserHandler';
+import { DeleteUserHandler } from '../application/command/DeleteUserHandler';
+import { GetUserHandler } from '../application/query/GetUserHandler';
+import { ListUsersHandler } from '../application/query/ListUsersHandler';
 
 const userRepository = new InMemoryUserRepository();
+
+const createUserHandler = new CreateUserHandler(userRepository);
+const updateUserHandler = new UpdateUserHandler(userRepository);
+const deleteUserHandler = new DeleteUserHandler(userRepository);
+const getUserHandler = new GetUserHandler(userRepository);
+const listUsersHandler = new ListUsersHandler(userRepository);
+
+const userService = new UserService({ create: createUserHandler, update: updateUserHandler, delete: deleteUserHandler }, { get: getUserHandler, list: listUsersHandler });
+
 
 const userRoutes = new Hono();
 
 // Get all users
 userRoutes.get('/', async (c) => {
-  const listUsersHandler = new ListUsersHandler(userRepository);
   const query = new ListUsersQuery();
-  const users = await listUsersHandler.handle(query);
+  const users = await userService.execute(query);
   return c.json(users);
 });
 
 // Get a single user by ID
 userRoutes.get('/:id', async (c) => {
   const id = c.req.param('id');
-  const getUserHandler = new GetUserHandler(userRepository);
   const query = new GetUserQuery(id);
-  const user = await getUserHandler.handle(query);
+  const user = await userService.execute(query);
   if (!user) {
     return c.text('User not found', 404);
   }
   return c.json(user);
 });
 
-// Create a new user
+// Create a user
 userRoutes.post('/', async (c) => {
-  const { name, email } = await c.req.json();
-  const createUserHandler = new CreateUserHandler(userRepository);
-  const command = new CreateUserCommand(name, email);
-  const newUser = await createUserHandler.handle(command);
-  return c.json(newUser, 201);
+    const { name, email } = await c.req.json();
+    const command = new CreateUserCommand(name, email);
+    const newUser = await userService.execute(command);
+    return c.json(newUser, 201);
 });
 
 // Update an existing user
 userRoutes.put('/:id', async (c) => {
-  const id = c.req.param('id');
-  const { name, email } = await c.req.json();
-  const updateUserHandler = new UpdateUserHandler(userRepository);
-  const command = new UpdateUserCommand(id, name, email);
-  const updatedUser = await updateUserHandler.handle(command);
-  if (!updatedUser) {
-    return c.text('User not found', 404);
-  }
-  return c.json(updatedUser);
+    const id = c.req.param('id');
+    const { name, email } = await c.req.json();
+    const command = new UpdateUserCommand(id, name, email);
+    const updatedUser = await userService.execute(command);
+    if (!updatedUser) {
+        return c.text('User not found', 404);
+    }
+    return c.json(updatedUser);
 });
 
 // Delete a user
 userRoutes.delete('/:id', async (c) => {
-  const id = c.req.param('id');
-  const deleteUserHandler = new DeleteUserHandler(userRepository);
-  const command = new DeleteUserCommand(id);
-  const isDeleted = await deleteUserHandler.handle(command);
-  if (isDeleted) {
-    return c.text('User deleted');
-  } else {
-    return c.text('User not found', 404);
-  }
+    const id = c.req.param('id');
+    const command = new DeleteUserCommand(id);
+    await userService.execute(command);
+    return c.text('User deleted', 204);
 });
 
 export { userRoutes };
