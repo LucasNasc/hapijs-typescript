@@ -6,19 +6,22 @@
   "author": "Lucas Nascimento",
   "license": "MIT",
   "scripts": {
-    "start": "node dist/index.js",
-    "build": "tsc"
-   
-,   "test": "jest --coverage --coverageReporters=html"
+    "start": "node src/index.js",
+    "build": "tsc",
+    "test": "jest --coverage --coverageReporters=html"
   },
   "dependencies": {
-    "hono": "latest",
+    "@hono/node-server": "^1.12.0",
+    "hono": "^4.4.12",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@types/node": "^14.0.27",
-    "typescript": "latest",
+    "@types/node": "^20.14.13",
+    "typescript": "~5.5.4",
     "@types/jest": "^29.5.12",
     "ts-jest": "^29.2.3"
+  },
+  "engines": {
+    "node": "22.11"
   }
 }
