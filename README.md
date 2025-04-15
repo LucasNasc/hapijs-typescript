@@ -17,11 +17,11 @@ The `application` folder contains the application logic, including command and q
 
 This project utilizes the Command Query Responsibility Segregation (CQRS) pattern to separate the handling of commands (actions that change the system state) and queries (requests for data). This separation enhances scalability, maintainability, and flexibility.
 
-**Commands** are actions that modify data, such as creating, updating, or deleting a user. In this project, command handlers are located in the `<CODE_BLOCK> src/application/command </CODE_BLOCK>` directory. For example, `<CODE_BLOCK> CreateUserHandler.ts </CODE_BLOCK>` is responsible for handling the user creation command.
+**Commands** are actions that modify data, such as creating, updating, or deleting a user. In this project, command handlers are located in the `src/application/command` directory. For example, `CreateUserHandler.ts` is responsible for handling the user creation command.
 
-**Queries** are requests for reading data without modifying it, such as retrieving a user or listing all users. Query handlers are found in the `<CODE_BLOCK> src/application/query </CODE_BLOCK>` directory. For instance, `<CODE_BLOCK> GetUserHandler.ts </CODE_BLOCK>` handles requests to retrieve a specific user.
+**Queries** are requests for reading data without modifying it, such as retrieving a user or listing all users. Query handlers are found in the `src/application/query` directory. For instance, `GetUserHandler.ts` handles requests to retrieve a specific user.
 
-The **Presentation Layer**, specifically the routes defined in `<CODE_BLOCK> src/presentation/user.routes.ts </CODE_BLOCK>`, interacts with the Application Layer to dispatch commands and queries. When a request is received, the appropriate command or query is sent to the corresponding handler in the Application Layer. The Application Layer then processes the request, potentially interacting with the **Domain** and **Infrastructure Layers** to fulfill the operation.
+The **Presentation Layer**, specifically the routes defined in `src/presentation/user.routes.ts`, interacts with the Application Layer to dispatch commands and queries. When a request is received, the appropriate command or query is sent to the corresponding handler in the Application Layer. The Application Layer then processes the request, potentially interacting with the **Domain** and **Infrastructure Layers** to fulfill the operation.
 
 This separation ensures a clear distinction between read and write operations, allowing for independent scaling and optimization of each.
 
