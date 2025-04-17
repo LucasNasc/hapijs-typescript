@@ -11,6 +11,7 @@ import { DeleteUserHandler } from './command/DeleteUserHandler';
 import { ListUsersHandler } from './query/ListUsersHandler';
 
 export interface UserRepository {
+    list(): Promise<User[]>;
   create(user: User): Promise<User>;
   read(id: string): Promise<User | null>;
   update(id: string, user: Partial<User>): Promise<User | null>;

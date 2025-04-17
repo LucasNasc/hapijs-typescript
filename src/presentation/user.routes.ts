@@ -1,4 +1,20 @@
-import { Hono } from 'hono';
+import { Hono, Context } from 'hono';
+import { verify, sign } from 'jsonwebtoken';
+import { HonoRequest } from 'hono/dist/types';
+
+interface CustomEnv {
+  Bindings: {}
+  Variables: {}
+}
+
+interface CustomHonoRequest extends HonoRequest {
+  jwtPayload: {
+    sub: string;
+    name: string;
+  };
+}
+
+const jwtPayloadKey = Symbol('jwtPayload');
 import { ListUsersQuery } from '../application/query/ListUsersHandler';
 import { GetUserQuery } from '../application/query/GetUserHandler';
 import { CreateUserCommand } from '../application/command/CreateUserHandler';
@@ -25,19 +41,48 @@ const listUsersHandler = new ListUsersHandler(userRepository);
 const userService = new UserService({ create: createUserHandler, update: updateUserHandler, delete: deleteUserHandler }, { get: getUserHandler, list: listUsersHandler });
 
 
+const secret = 'super_secret';
+
 const userRoutes = new Hono();
 
+const authMiddleware = async (c: Context, next: () => Promise<void>) => {
+const authHeader = c.req.header('Authorization');
+
+if (!authHeader) {
+  return c.text('Unauthorized', 401);
+}
+
+const token = authHeader.split(' ')[1];
+
+try {
+  const decoded = verify(token, secret) as { sub: string, name: string };
+  (c.req as unknown as CustomHonoRequest).jwtPayload = decoded;
+  await next();
+} catch (error) {
+  console.error(error);
+  return c.text('Unauthorized', 401);
+}
+};
+
+userRoutes.use('^/(?!login).*$', authMiddleware);
+
 // Get all users
-userRoutes.get('/', async (c) => { // Changed to userRoutes
-    try {
-        const query = new ListUsersQuery();
-        const users = await userService.execute(query);
-        logger.info({ users }, 'Fetched all users');
-        return c.json(users);
-    } catch (error: any) {
-        logger.error({ error }, 'Error fetching all users');
-        return c.text('Error fetching users', 500);
+userRoutes.get('/', async (c: Context) => {
+  try {
+    const req = c.req as any;
+    const jwtPayload = req.jwtPayload;
+    console.log({ jwtPayload });
+    if (!jwtPayload) {
+      return c.text('Unauthorized', 401);
     }
+    const query = new ListUsersQuery();
+    const users = await userService.execute(query);
+    logger.info({ users }, 'Fetched all users');
+    return c.json(users);
+  } catch (error: unknown) {
+    logger.error({ error }, 'Error fetching all users');
+    return c.text('Error fetching users', 500);
+  }
 });
 
 // Get a single user by ID
@@ -52,7 +97,7 @@ userRoutes.get('/:id', async (c) => {
         }
         logger.info({ user }, 'Fetched user by ID');
         return c.json(user);
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error({ error }, 'Error fetching user by ID');
         return c.text('Error fetching user', 500);
     }
@@ -66,7 +111,7 @@ userRoutes.post('/', async (c) => {
         const newUser = await userService.execute(command);
         logger.info({ newUser }, 'User created successfully');
         return c.json(newUser, 201);
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error({ error }, 'Error creating user');
         return c.text('Error creating user', 500);
     }
@@ -85,7 +130,7 @@ userRoutes.put('/:id', async (c) => {
         }
         logger.info({ updatedUser }, 'User updated successfully');
         return c.json(updatedUser);
-    } catch (error: any) {
+    } catch (error: unknown) {
         logger.error({ error }, 'Error updating user');
         return c.text('Error updating user', 500);
     }
@@ -98,11 +143,27 @@ userRoutes.delete('/:id', async (c) => {
         const command = new DeleteUserCommand(id);
         await userService.execute(command);
         logger.info({ userId: id }, 'User deleted successfully');
-        return c.text('User deleted', 204);
-    } catch (error: any) {
+        return c.text('User deleted', 200);
+    } catch (error: unknown) {
         logger.error({ error }, 'Error deleting user');
         return c.text('Error deleting user', 500);
     }
 });
+
+userRoutes.post('/login', async (c) => {
+  const { username, password } = await c.req.json();
+  console.log({ username, password });
+  console.log(username === 'roo', password === 'roo');
+
+  if (username === 'roo' && password === 'roo') {
+    const token = sign({
+      sub: 'roo',
+      name: 'Roo'
+    }, secret);
+    return c.json({ token });
+  }
+
+  return c.text('Unauthorized', 401)
+})
 
 export { userRoutes };

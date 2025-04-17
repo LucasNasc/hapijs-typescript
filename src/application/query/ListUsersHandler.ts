@@ -7,7 +7,6 @@ export class ListUsersHandler {
     constructor(private readonly userRepository: UserRepository) { }
 
     async handle(query: ListUsersQuery): Promise<User[]> {
-        return null;
-        // Implement the logic here
+        return this.userRepository.list();
     }
 }

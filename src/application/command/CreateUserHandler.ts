@@ -16,6 +16,16 @@ export class CreateUserHandler {
       name,
       email,
     };
+
+    if (!name) {
+      throw new Error('Name cannot be empty');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Invalid email format');
+    }
+
     return this.userRepository.create(newUser);
   }
 }
