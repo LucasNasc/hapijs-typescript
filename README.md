@@ -1,9 +1,4 @@
-[![Node.js](https://img.shields.io/badge/Node.js-22.11-green)](https://nodejs.org/)
-[![Hono.js](https://img.shields.io/badge/Hono.js-4.4.12-red)](https://hono.dev/)
-[![DDD](https://img.shields.io/badge/DDD-approach-orange)](https://en.wikipedia.org/wiki/Domain-driven_design)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blueviolet)](https://semver.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Formatted with Biome](https://img.shields.io/badge/Formatted_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.11-green)](https://nodejs.org/) [![Hono.js](https://img.shields.io/badge/Hono.js-4.4.12-red)](https://hono.dev/) [![DDD](https://img.shields.io/badge/DDD-approach-orange)](https://en.wikipedia.org/wiki/Domain-driven_design) [![Version](https://img.shields.io/badge/Version-1.0.0-blueviolet)](https://semver.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Formatted with Biome](https://img.shields.io/badge/Formatted_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev/) [![Coverage Statements](./coverage/badge-statements.svg)](./coverage/badge-statements.svg) [![Coverage Branches](./coverage/badge-branches.svg)](./coverage/badge-branches.svg) [![Coverage Functions](./coverage/badge-functions.svg)](./coverage/badge-functions.svg) [![Coverage Lines](./coverage/badge-lines.svg)](./coverage/badge-lines.svg)
 
 ## Hono.js User Management API
 
